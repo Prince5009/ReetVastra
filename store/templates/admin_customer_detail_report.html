@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Customer Detail Report{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Customer Details: {{ customer.custname }}</h2>
+
+    <div class="card mb-4">
+        <div class="card-header bg-light">Customer Information</div>
+        <div class="card-body">
+            <p><strong>Name:</strong> {{ customer.custname }}</p>
+            <p><strong>Phone:</strong> {{ customer.phone }}</p>
+            <p><strong>Email:</strong> {{ customer.email|default:"N/A" }}</p>
+            <p><strong>Address:</strong> {{ customer.address }}, {{ customer.city }}, {{ customer.state }}, {{ customer.pincode }}</p>
+            <p><strong>Date of Birth:</strong> {{ customer.dob|date:"d M Y" }}</p>
+            <p><strong>Registration Date:</strong> {{ customer.regdate|date:"d M Y H:i" }}</p>
+        </div>
+    </div>
+
+    <h3 class="mb-3">Orders by This Customer</h3>
+
+    {% if customer_orders %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Order ID</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Payment Mode</th>
+                <th>Status</th>
+                <th>Order Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in customer_orders %}
+            <tr>
+                <td>{{ order.orderid }}</td>
+                <td>{{ order.pid.title }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>₹{{ order.amount }}</td>
+                <td>{{ order.payment_mode }}</td>
+                <td>{{ order.status }}</td>
+                <td>{{ order.date|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No orders found for this customer.</p>
+    {% endif %}
+
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %} 

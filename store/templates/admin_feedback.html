@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Feedback{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Customer Feedback</h2>
+    {% if feedbacks %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Subject</th>
+                <th>Message</th>
+                <th>Submitted At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for feedback in feedbacks %}
+            <tr>
+                <td>{{ feedback.name }}</td>
+                <td>{{ feedback.email }}</td>
+                <td>{{ feedback.subject }}</td>
+                <td>{{ feedback.message }}</td>
+                <td>{{ feedback.submitted_at|date:"d M Y H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No feedback submissions yet.</p>
+    {% endif %}
+</div>
+{% endblock %} 

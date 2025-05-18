@@ -1,0 +1,109 @@
+{% extends 'admin_report_base.html' %}
+
+{% block report_content %}
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">Total Low Stock Items</h5>
+                <h2 class="card-text">{{ total_low_stock }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h5 class="card-title">Critical Stock Items</h5>
+                <h2 class="card-text">{{ critical_stock }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">Low Stock Items</h5>
+                <h2 class="card-text">{{ low_stock }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Current Stock</th>
+                <th>Status</th>
+                <th>Last Updated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.title }}</td>
+                <td>{{ product.catid.title }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>
+                    {% if product.quantity <= 5 %}
+                        <span class="badge bg-danger">Critical</span>
+                    {% else %}
+                        <span class="badge bg-warning">Low</span>
+                    {% endif %}
+                </td>
+                <td>{{ product.date|date:"d M Y" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No low stock products found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="alert alert-warning mt-3">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    Products with stock less than 10 units are considered low stock. Items with 5 or fewer units are marked as critical and should be replenished immediately.
+</div>
+
+<!-- Stock Level Chart -->
+<div class="mt-4">
+    <canvas id="stockLevelChart" width="100%" height="40"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('stockLevelChart').getContext('2d');
+    var data = {
+        labels: [{% for product in products %}'{{ product.title }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Current Stock',
+            data: [{% for product in products %}{{ product.quantity }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: data,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

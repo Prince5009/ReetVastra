@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Delete Size{% endblock %}
+{% block content %}
+<div class="container py-5 text-center">
+    <h2 class="mb-4 text-danger">Delete Size</h2>
+    <p>Are you sure you want to delete the size <strong>{{ size.name }}</strong>?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'admin_size_list' %}" class="btn btn-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %} 

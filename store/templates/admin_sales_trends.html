@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Sales Trends{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Sales Trends (Monthly Revenue)</h2>
+
+    {% if monthly_sales %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Month</th>
+                <th>Total Sales (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in monthly_sales %}
+            <tr>
+                <td>{{ sale.month|date:"F Y" }}</td>
+                <td>₹{{ sale.total_sales|default:"0" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No sales data available.</p>
+    {% endif %}
+
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %} 

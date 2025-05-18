@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Product Ratings{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Product Average Ratings</h2>
+    {% if product_ratings %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Product</th>
+                <th>Average Rating</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in product_ratings %}
+            <tr>
+                <td>{{ product.title }}</td>
+                <td>
+                    {% if product.average_rating %}
+                        {{ product.average_rating|floatformat:1 }} / 5
+                    {% else %}
+                        No ratings yet
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.average_rating %}
+                        <a href="{% url 'admin_product_individual_ratings' product.pid %}" class="btn btn-info btn-sm">View Ratings</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No products with ratings yet.</p>
+    {% endif %}
+</div>
+{% endblock %} 

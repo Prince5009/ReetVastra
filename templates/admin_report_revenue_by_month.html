@@ -1,0 +1,70 @@
+{% extends 'admin_report_base.html' %}
+
+{% block report_content %}
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Month</th>
+                <th>Revenue (₹)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for revenue in monthly_revenue %}
+            <tr>
+                <td>{{ revenue.month|date:"F Y" }}</td>
+                <td>₹{{ revenue.total_revenue|default:"0" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" class="text-center">No revenue data found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<canvas id="revenueByMonthChart" width="100%" height="40"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('revenueByMonthChart').getContext('2d');
+    var data = {
+        labels: [{% for revenue in monthly_revenue %}'{{ revenue.month|date:"F Y" }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Monthly Revenue',
+            data: [{% for revenue in monthly_revenue %}{{ revenue.total_revenue|default:"0" }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            fill: true,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            tension: 0.4
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: data,
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Monthly Revenue Trend'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return '₹' + value;
+                        }
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

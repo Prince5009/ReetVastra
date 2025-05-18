@@ -1,0 +1,22 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <h1 class="mt-4">{{ report_title }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Reports</li>
+        <li class="breadcrumb-item active">{{ report_title }}</li>
+    </ol>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-chart-area me-1"></i>
+            {{ report_title }}
+        </div>
+        <div class="card-body">
+            {% block report_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

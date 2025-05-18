@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Sales by Category Detail{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Orders in Category: {{ category.title }}</h2>
+
+    {% if category_orders %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Payment Mode</th>
+                <th>Order Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in category_orders %}
+            <tr>
+                <td>{{ order.orderid }}</td>
+                <td>{{ order.custid.custname }}</td>
+                <td>{{ order.pid.title }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>₹{{ order.amount }}</td>
+                <td>{{ order.payment_mode }}</td>
+                <td>{{ order.date|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No orders found for this category.</p>
+    {% endif %}
+
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %} 

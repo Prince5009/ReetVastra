@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5dc; }
+        .container { background: #fff; padding: 2rem; border-radius: 12px; box-shadow: 0 2px 16px rgba(139,69,19,0.08); margin-top: 2rem; }
+        .btn-success { background: #8B4513; border: none; }
+        .btn-success:hover { background: #6B3410; }
+        .btn-primary { background: #8B4513; border: none; }
+        .btn-primary:hover { background: #6B3410; }
+        .btn-danger { background: #b22222; border: none; }
+        .btn-danger:hover { background: #8b0000; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="mb-4">Manage Categories</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <a href="{% url 'admin_category_add' %}" class="btn btn-success mb-3">Add Category</a>
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Section</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+            <tr>
+                <td>{{ category.catid }}</td>
+                <td>{{ category.title }}</td>
+                <td>{{ category.secid.title }}</td>
+                <td>
+                    <a href="{% url 'admin_category_edit' category.catid %}" class="btn btn-sm btn-primary">Edit</a>
+                    <a href="{% url 'admin_category_delete' category.catid %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center">No categories found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/admin/dashboard/" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+</body>
+</html> 

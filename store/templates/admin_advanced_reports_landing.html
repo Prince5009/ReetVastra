@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Advanced Reports{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fas fa-chart-line me-2" style="color: var(--accent);"></i>Advanced Reports</h2>
+
+    <div class="list-group">
+        <a href="{% url 'admin_sales_trends' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            Sales Trends (Monthly Revenue)
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        <a href="{% url 'admin_average_order_value' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            Average Order Value
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        <a href="{% url 'admin_sales_by_location' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            Sales by Location
+            <i class="fas fa-chevron-right"></i>
+        </a>
+         <a href="{% url 'admin_payments_by_mode_chart_view' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+            Payments by Mode (Chart)
+            <i class="fas fa-chevron-right"></i>
+        </a>
+    </div>
+
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary mt-4">Back to Dashboard</a>
+</div>
+{% endblock %} 

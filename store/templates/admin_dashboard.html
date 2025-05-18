@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ReetVastra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --sidebar-width: 280px;
+            --accent: #8B4513;
+            --accent-light: #f3e7d3;
+            --glass-bg: rgba(255,255,255,0.7);
+        }
+        body {
+            background: linear-gradient(135deg, #f5f5dc 0%, #f3e7d3 100%);
+        }
+        /* Top Navbar */
+        .admin-navbar {
+            background: var(--glass-bg);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1100;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+        }
+        .admin-navbar .brand {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            color: var(--accent);
+            font-size: 1.3rem;
+        }
+        .admin-navbar img {
+            height: 36px;
+            margin-right: 10px;
+        }
+        .admin-navbar .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-size: 1.7rem;
+            margin-right: 1rem;
+            display: none;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            color: var(--accent);
+            padding: 1rem 0.5rem 1rem 1rem;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.07);
+            transition: transform 0.3s cubic-bezier(.4,2,.6,1), box-shadow 0.3s;
+        }
+        .sidebar-header {
+            text-align: center;
+            padding: 1rem 0 0.5rem 0;
+            border-bottom: 1px solid #e0d6c3;
+        }
+        .sidebar-header img {
+            max-width: 90px;
+            height: auto;
+        }
+        .nav-link {
+            color: var(--accent);
+            padding: 0.8rem 1rem;
+            margin: 0.2rem 0;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: var(--accent-light);
+            color: var(--accent);
+            box-shadow: 0 2px 8px rgba(139,69,19,0.07);
+        }
+        .submenu {
+            padding-left: 2.5rem;
+            font-size: 0.95rem;
+        }
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 2.5rem 1rem 1rem 1rem;
+            transition: margin-left 0.3s;
+        }
+        /* Stat Cards */
+        .stat-card {
+            background: linear-gradient(135deg, #fff 60%, #f3e7d3 100%);
+            border-radius: 16px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(139,69,19,0.07);
+            margin-bottom: 1.2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 6px 24px rgba(139,69,19,0.13);
+        }
+        .stat-card i {
+            font-size: 2.2rem;
+            color: var(--accent);
+            margin-bottom: 0.7rem;
+        }
+        .stat-card h3 {
+            font-size: 1.7rem;
+            margin-bottom: 0.3rem;
+            color: #222;
+        }
+        .stat-card p {
+            color: #6b4a2a;
+            font-size: 1.05rem;
+        }
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.5rem 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 12px rgba(139,69,19,0.07);
+        }
+        .chart-container {
+            height: 260px;
+            margin-bottom: 2rem;
+        }
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 16px rgba(139,69,19,0.18);
+            z-index: 1200;
+            border: none;
+        }
+        .fab:active {
+            background: #6B3410;
+        }
+        /* Responsive Styles */
+        @media (max-width: 991px) {
+            .main-content {
+                padding: 1.5rem 0.5rem 1rem 0.5rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 80vw;
+                max-width: 320px;
+                box-shadow: 2px 0 16px rgba(139,69,19,0.13);
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding-top: 4.5rem;
+            }
+            .admin-navbar .mobile-menu-btn {
+                display: block;
+            }
+        }
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 95vw;
+                max-width: 99vw;
+                padding: 1rem 0.3rem 1rem 0.7rem;
+            }
+            .main-content {
+                padding: 1rem 0.2rem 1rem 0.2rem;
+            }
+            .stat-card h3 {
+                font-size: 1.2rem;
+            }
+            .stat-card i {
+                font-size: 1.5rem;
+            }
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.25);
+            z-index: 999;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navbar -->
+    <div class="admin-navbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
+        <span class="brand">
+            <img src="/static/images/image.png" alt="ReetVastra Logo"> ReetVastra Admin
+        </span>
+    </div>
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <img src="/static/images/image.png" alt="ReetVastra Logo">
+            <h5 class="mt-2">Admin Panel</h5>
+        </div>
+        <nav class="mt-4">
+            <a href="/admin/dashboard/" class="nav-link active">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/admin/sections/" class="nav-link">
+                <i class="fas fa-th-large"></i> Sections
+            </a>
+            <a href="/admin/categories/" class="nav-link">
+                <i class="fas fa-tags"></i> Categories
+            </a>
+            <a href="/admin/products/" class="nav-link">
+                <i class="fas fa-box"></i> Products
+            </a>
+            <a href="/admin/customers/" class="nav-link">
+                <i class="fas fa-users"></i> Customers
+            </a>
+            <a href="{% url 'admin_order_list' %}" class="nav-link">
+                <i class="fas fa-shopping-cart"></i> Orders
+            </a>
+            <a href="{% url 'admin_size_list' %}" class="nav-link">
+                <i class="fas fa-ruler-combined"></i> Sizes
+            </a>
+            <a href="{% url 'admin_color_list' %}" class="nav-link">
+                <i class="fas fa-palette"></i> Colors
+            </a>
+            <a href="{% url 'admin_feedback' %}" class="nav-link">
+                <i class="fas fa-comment"></i> Feedback
+            </a>
+            <a href="{% url 'admin_payment_history' %}" class="nav-link">
+                <i class="fas fa-credit-card"></i> Payment History
+            </a>
+            <a href="{% url 'admin_product_ratings' %}" class="nav-link">
+                <i class="fas fa-star"></i> Product Ratings
+            </a>
+            <a href="{% url 'admin_advanced_reports' %}" class="nav-link">
+                <i class="fas fa-chart-bar"></i> Reports
+            </a>
+            <a href="#" class="nav-link">
+                <i class="fas fa-cog"></i> Settings
+            </a>
+            <a href="{% url 'admin_logout' %}" class="nav-link">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </div>
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container-fluid">
+            <h2 class="mb-4"><i class="fas fa-list-alt me-2" style="color: var(--accent);"></i>Dashboard Overview</h2>
+            <!-- Stats Row -->
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-box"></i>
+                        <h3>{{ product_count }}</h3>
+                        <p>Total Products</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3>{{ customer_count }}</h3>
+                        <p>Total Customers</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-tags"></i>
+                        <h3>{{ category_count }}</h3>
+                        <p>Categories</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stat-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>{{ order_count }}</h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Row -->
+            <div class="row mt-4">
+                <!-- Top Products -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-chart-bar me-2"></i>Top Products</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Orders</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in top_products %}
+                                    <tr>
+                                        <td>{{ product.title }}</td>
+                                        <td>{{ product.order_count }}</td>
+                                        <td>
+                                            <a href="{% url 'admin_top_product_orders' product.pid %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Customers -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-users me-2"></i>Active Customers (Last 30 Days)</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Orders</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for customer in active_customers %}
+                                    <tr>
+                                        <td>{{ customer.custname }}</td>
+                                        <td>{{ customer.order_count }}</td>
+                                        <td>
+                                            <a href="{% url 'admin_customer_detail_report' customer.custid %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales by Category -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-chart-pie me-2"></i>Sales by Category</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Sales (₹)</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for category in sales_by_category %}
+                                    <tr>
+                                        <td>{{ category.title }}</td>
+                                        <td>₹{{ category.total_sales|default:"0" }}</td>
+                                        <td>
+                                            <a href="{% url 'admin_sales_by_category_detail' category.catid %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders by Status -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-tasks me-2"></i>Orders by Status</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Count</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for status in orders_by_status %}
+                                    <tr>
+                                        <td>
+                                            {% if status.status == 'Placed' %}
+                                                <span class="badge bg-primary">Placed</span>
+                                            {% elif status.status == 'Shipped' %}
+                                                <span class="badge bg-warning">Shipped</span>
+                                            {% elif status.status == 'Delivered' %}
+                                                <span class="badge bg-success">Delivered</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ status.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ status.count }}</td>
+                                        <td>
+                                             <a href="{% url 'admin_orders_by_status_detail' status.status %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Orders -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-clock me-2"></i>Recent Orders</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_orders %}
+                                    <tr>
+                                        <td>#{{ order.orderid }}</td>
+                                        <td>{{ order.custid.custname }}</td>
+                                        <td>₹{{ order.amount }}</td>
+                                        <td>
+                                            {% if order.status == 'Placed' %}
+                                                <span class="badge bg-primary">Placed</span>
+                                            {% elif order.status == 'Shipped' %}
+                                                <span class="badge bg-warning">Shipped</span>
+                                            {% elif order.status == 'Delivered' %}
+                                                <span class="badge bg-success">Delivered</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ order.status }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'admin_order_detail' order.orderid %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Products -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Products</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Stock</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for product in low_stock_products %}
+                                    <tr>
+                                        <td>{{ product.title }}</td>
+                                        <td>{{ product.quantity }}</td>
+                                        <td>
+                                            {% if product.quantity <= 5 %}
+                                                <span class="badge bg-danger">Critical</span>
+                                            {% else %}
+                                                <span class="badge bg-warning">Low</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'admin_product_detail_report' product.pid %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Popular Sizes -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-ruler me-2"></i>Popular Sizes</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Size</th>
+                                        <th>Orders</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for size in popular_sizes %}
+                                    <tr>
+                                        <td>{{ size.name }}</td>
+                                        <td>{{ size.order_count }}</td>
+                                        <td>
+                                            <a href="{% url 'admin_size_products' size.id %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Never Ordered Customers -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-user-slash me-2"></i>Never Ordered Customers</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Registration Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for customer in customers_without_orders %}
+                                    <tr>
+                                        <td>{{ customer.custname }}</td>
+                                        <td>{{ customer.regdate|date:"d M Y" }}</td>
+                                        <td>
+                                            <a href="{% url 'admin_customer_detail_report' customer.custid %}" class="btn btn-sm btn-primary">View</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="row mt-4">
+                <!-- Monthly Revenue Chart -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Monthly Revenue</h5>
+                        <canvas id="revenueChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- Customer Trend Chart -->
+                <div class="col-md-6">
+                    <div class="dashboard-card">
+                        <h5 class="mb-3"><i class="fas fa-chart-line me-2"></i>Customer Registration Trend</h5>
+                        <canvas id="customerTrendChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Floating Action Button for Quick Add (example) -->
+    <button class="fab d-md-none" title="Quick Add">
+        <i class="fas fa-plus"></i>
+    </button>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        function toggleSidebar() {
+            sidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        }
+        mobileMenuBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+        // Monthly Revenue Chart
+        var revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        var revenueLabels = [{% for revenue in monthly_revenue %}'{{ revenue.month|date:"M Y" }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+        var revenueData = [{% for revenue in monthly_revenue %}{{ revenue.total_revenue|default:"0" }}{% if not forloop.last %},{% endif %}{% endfor %}];
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: revenueLabels,
+                datasets: [{
+                    label: 'Revenue',
+                    data: revenueData,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        // Customer Trend Chart
+        var customerTrendCtx = document.getElementById('customerTrendChart').getContext('2d');
+        var trendLabels = [{% for trend in customer_trend %}'{{ trend.month|date:"M Y" }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+        var trendData = [{% for trend in customer_trend %}{{ trend.new_customers }}{% if not forloop.last %},{% endif %}{% endfor %}];
+        new Chart(customerTrendCtx, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'New Customers',
+                    data: trendData,
+                    fill: true,
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Payments by Mode{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fas fa-credit-card me-2" style="color: var(--accent);"></i>Payments by Mode</h2>
+
+    <div class="dashboard-card">
+        <canvas id="paymentModeChart"></canvas>
+    </div>
+
+    <a href="{% url 'admin_advanced_reports' %}" class="btn btn-secondary mt-4">Back to Advanced Reports</a>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('{% url 'admin_report_payments_by_mode' %}')
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('paymentModeChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Number of Orders',
+                            data: data.counts,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)',
+                                'rgba(153, 102, 255, 0.6)',
+                                'rgba(255, 159, 64, 0.6)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)',
+                                'rgba(255, 159, 64, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        aspectRatio: 2,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        const amount = data.amounts[context.dataIndex];
+                                        label += context.parsed + ' orders (₹' + amount + ')';
+                                        return label;
+                                    }
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Order Distribution by Payment Mode'
+                            }
+                        }
+                    },
+                });
+            });
+    });
+</script>
+{% endblock %}
+
+{% endblock %} 

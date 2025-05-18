@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Order History{% endblock %}
+{% block content %}
+<h2 class="mb-4">Order History</h2>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Product</th>
+            <th>Size</th>
+            <th>Color</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+        <tr>
+            <td>
+                <img src="{{ order.pid.image.url }}" width="50" class="me-2">
+                {{ order.pid.title }}
+            </td>
+            <td>{{ order.size }}</td>
+            <td>{{ order.color.name }}</td>
+            <td>{{ order.quantity }}</td>
+            <td>₹{{ order.amount }}</td>
+            <td>
+                {% if order.status == 'Placed' %}
+                    <span class="badge bg-danger">{{ order.status }}</span>
+                {% elif order.status == 'Shipped' %}
+                    <span class="badge bg-warning text-dark">{{ order.status }}</span>
+                {% elif order.status == 'Delivered' %}
+                    <span class="badge bg-success">{{ order.status }}</span>
+                {% else %}
+                    <span class="badge bg-secondary">{{ order.status }}</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'view_order_bill' order.orderid %}" class="btn btn-info btn-sm">View</a>
+                <a href="{% url 'product_detail' order.pid.pid %}" class="btn btn-primary btn-sm">View Product</a>
+                {% if order.status == 'Placed' %}
+                    <a href="{% url 'cancel_order' order.orderid %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this order?');">Cancel</a>
+                {% endif %}
+                {% if order.status == 'Delivered' %}
+                    <a href="{% url 'return_order' order.orderid %}" class="btn btn-warning btn-sm">Return</a>
+                    <a href="{% url 'exchange_order' order.orderid %}" class="btn btn-secondary btn-sm">Exchange</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="7" class="text-center">No orders found.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %} 

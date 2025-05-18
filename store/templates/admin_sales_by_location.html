@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Sales by Location{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fas fa-map-marker-alt me-2" style="color: var(--accent);"></i>Sales by Location</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="dashboard-card">
+                <h5 class="mb-3">Sales by State</h5>
+                {% if sales_by_state %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>Total Sales (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in sales_by_state %}
+                            <tr>
+                                <td>{{ sale.custid__state }}</td>
+                                <td>₹{{ sale.total_sales|default:"0" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>No sales data by state available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="dashboard-card">
+                <h5 class="mb-3">Sales by City</h5>
+                {% if sales_by_city %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>City</th>
+                                <th>Total Sales (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sale in sales_by_city %}
+                            <tr>
+                                <td>{{ sale.custid__city }}</td>
+                                <td>₹{{ sale.total_sales|default:"0" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>No sales data by city available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'admin_advanced_reports' %}" class="btn btn-secondary mt-4">Back to Advanced Reports</a>
+</div>
+{% endblock %} 

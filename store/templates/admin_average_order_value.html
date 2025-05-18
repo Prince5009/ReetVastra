@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Average Order Value{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4"><i class="fas fa-calculator me-2" style="color: var(--accent);"></i>Average Order Value</h2>
+
+    <div class="dashboard-card">
+        <p class="lead">The average value of orders (excluding cancelled orders) is:</p>
+        <h3>₹{{ average_value|default:"N/A" }}</h3>
+    </div>
+
+    <a href="{% url 'admin_advanced_reports' %}" class="btn btn-secondary mt-4">Back to Advanced Reports</a>
+</div>
+{% endblock %} 

@@ -1,0 +1,81 @@
+{% extends 'admin_report_base.html' %}
+
+{% block report_content %}
+<div class="table-responsive">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for status in status_counts %}
+            <tr>
+                <td>
+                    {% if status.status == 'Placed' %}
+                        <span class="badge bg-primary">Placed</span>
+                    {% elif status.status == 'Shipped' %}
+                        <span class="badge bg-warning">Shipped</span>
+                    {% elif status.status == 'Delivered' %}
+                        <span class="badge bg-success">Delivered</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ status.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ status.count }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" class="text-center">No orders found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<canvas id="ordersByStatusChart" width="100%" height="40"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var ctx = document.getElementById('ordersByStatusChart').getContext('2d');
+    var data = {
+        labels: [{% for status in status_counts %}'{{ status.status }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for status in status_counts %}{{ status.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: [
+                'rgba(54, 162, 235, 0.5)',  // Placed
+                'rgba(255, 206, 86, 0.5)',   // Shipped
+                'rgba(75, 192, 192, 0.5)',   // Delivered
+                'rgba(153, 102, 255, 0.5)'   // Other
+            ],
+            borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+            ],
+            borderWidth: 1
+        }]
+    };
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: data,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'right',
+                },
+                title: {
+                    display: true,
+                    text: 'Orders by Status'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %} 

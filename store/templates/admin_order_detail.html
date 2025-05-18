@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Order Detail{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Order Detail</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-light"><strong>User Details</strong></div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ order.custid.custname }}</p>
+                    <p><strong>Phone:</strong> {{ order.custid.phone }}</p>
+                    <p><strong>Address:</strong> {{ order.custid.address }}, {{ order.custid.city }}, {{ order.custid.state }}, {{ order.custid.pincode }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-light"><strong>Order Details</strong></div>
+                <div class="card-body">
+                    <p><strong>Order ID:</strong> {{ order.orderid }}</p>
+                    <p><strong>Date:</strong> {{ order.date }}</p>
+                    <p><strong>Status:</strong> 
+                        {% if order.status == 'Cancelled' %}
+                            <span class="badge bg-danger">Cancelled</span>
+                        {% else %}
+                        <form method="post" action="{% url 'admin_update_order_status' order.orderid %}" class="d-inline">
+                            {% csrf_token %}
+                            <select name="status" class="form-select d-inline w-auto" style="display:inline-block;">
+                                <option value="Placed" {% if order.status == 'Placed' %}selected{% endif %}>Placed</option>
+                                <option value="Shipped" {% if order.status == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary ms-2">Update</button>
+                        </form>
+                        {% endif %}
+                    </p>
+                    <p><strong>Payment Mode:</strong> {{ order.payment_mode }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <div class="card-header bg-light"><strong>Product Details</strong></div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Size</th>
+                        <th>Color</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>{{ order.pid.title }}</td>
+                        <td>{{ order.size }}</td>
+                        <td>{{ order.color.name }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>₹{{ order.pid.price }}</td>
+                        <td>₹{{ order.amount }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <a href="{% url 'admin_order_list' %}" class="btn btn-secondary">Back to Orders</a>
+</div>
+{% endblock %} 

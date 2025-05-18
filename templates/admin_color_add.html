@@ -1,0 +1,74 @@
+{% extends 'admin_base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">
+                        <i class="fas fa-plus me-2"></i>Add New Color
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Color Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Hex Color Code</label>
+                            <div class="input-group">
+                                <input type="color" class="form-control form-control-color" id="colorPicker" value="#000000">
+                                <input type="text" class="form-control" id="code" name="code" placeholder="#RRGGBB" required>
+                            </div>
+                            <div class="form-text">Enter a hex color code (e.g., #FF0000 for red)</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="color-preview" id="colorPreview" style="width: 100px; height: 100px; border-radius: 8px; border: 1px solid #ddd;"></div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'admin_color_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Color
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colorPicker = document.getElementById('colorPicker');
+    const codeInput = document.getElementById('code');
+    const colorPreview = document.getElementById('colorPreview');
+
+    function updateColorPreview(color) {
+        colorPreview.style.backgroundColor = color;
+    }
+
+    colorPicker.addEventListener('input', function(e) {
+        const color = e.target.value;
+        codeInput.value = color.toUpperCase();
+        updateColorPreview(color);
+    });
+
+    codeInput.addEventListener('input', function(e) {
+        const color = e.target.value;
+        if (/^#[0-9A-F]{6}$/i.test(color)) {
+            colorPicker.value = color;
+            updateColorPreview(color);
+        }
+    });
+
+    // Initialize preview
+    updateColorPreview(colorPicker.value);
+});
+</script>
+{% endblock %} 

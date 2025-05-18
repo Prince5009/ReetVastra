@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Add Size{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Add New Size</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Size Name</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Size</button>
+        <a href="{% url 'admin_size_list' %}" class="btn btn-secondary ms-2">Back</a>
+    </form>
+</div>
+{% endblock %} 

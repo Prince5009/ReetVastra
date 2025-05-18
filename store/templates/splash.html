@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to ReetVastra</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #F5F5DC;
+            overflow: hidden;
+        }
+        
+        .splash-container {
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+        
+        .splash-logo {
+            max-width: 300px;
+            height: auto;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+        
+        .fade-out {
+            animation: fadeOut 1s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-container">
+        <img src="/static/images/image.png" alt="ReetVastra Logo" class="splash-logo">
+    </div>
+
+    <script>
+        setTimeout(function() {
+            document.body.classList.add('fade-out');
+            setTimeout(function() {
+                window.location.href = '/welcome';
+            }, 1000);
+        }, 4000);
+    </script>
+</body>
+</html> 

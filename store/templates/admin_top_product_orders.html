@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Admin - Top Product Orders{% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4">Orders for Top Product: {{ product.title }}</h2>
+
+    {% if product_orders %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Quantity</th>
+                <th>Amount</th>
+                <th>Payment Mode</th>
+                <th>Order Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in product_orders %}
+            <tr>
+                <td>{{ order.orderid }}</td>
+                <td>{{ order.custid.custname }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>₹{{ order.amount }}</td>
+                <td>{{ order.payment_mode }}</td>
+                <td>{{ order.date|date:"d M Y" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No orders found for this product.</p>
+    {% endif %}
+
+    <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary mt-3">Back to Dashboard</a>
+</div>
+{% endblock %} 

@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Order Bill{% endblock %}
+
+{% block content %}
+
+{% if pdf_export %}
+<!-- PDF/XHTML2PDF FRIENDLY BILL -->
+<div style="width: 100%; font-family: Arial, sans-serif;">
+    <div style="text-align: center; margin-bottom: 10px;">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQC...YOUR_BASE64_LOGO..." style="height: 60px; margin-bottom: 5px;" alt="ReetVastra Logo">
+        <div style="font-size: 1.5em; font-weight: bold; color: #8B4513;">ReetVastra</div>
+    </div>
+    <h2 style="text-align: center; margin-bottom: 10px;">Order Bill</h2>
+    <div style="text-align: right; margin-bottom: 10px; font-size: 1em;">
+        <b>Date of Booking:</b> {{ orders.0.date|date:'d M Y' }}<br>
+        <b>Order ID:</b> #{{ orders.0.orderid }}
+    </div>
+    <h4 style="margin-bottom: 8px;">Order Details</h4>
+    <table style="width:100%; border-collapse:collapse; margin-bottom:20px; font-size: 1em;">
+        <tr>
+            <th style="border:1px solid #333; padding:8px; background:#eee;">Product</th>
+            <th style="border:1px solid #333; padding:8px; background:#eee;">Size</th>
+            <th style="border:1px solid #333; padding:8px; background:#eee;">Color</th>
+            <th style="border:1px solid #333; padding:8px; background:#eee;">Quantity</th>
+            <th style="border:1px solid #333; padding:8px; background:#eee;">Price</th>
+            <th style="border:1px solid #333; padding:8px; background:#eee;">Total</th>
+        </tr>
+        {% for order in orders %}
+        <tr>
+            <td style="border:1px solid #333; padding:8px;">{{ order.pid.title }}</td>
+            <td style="border:1px solid #333; padding:8px;">{{ order.size }}</td>
+            <td style="border:1px solid #333; padding:8px;">{{ order.color.name }}</td>
+            <td style="border:1px solid #333; padding:8px;">{{ order.quantity }}</td>
+            <td style="border:1px solid #333; padding:8px;">₹{{ order.pid.price }}</td>
+            <td style="border:1px solid #333; padding:8px;">₹{{ order.amount }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <div style="text-align: right; font-size: 1.1em; margin-bottom: 10px;">
+        <b>Total Amount:</b> <span style="color: #28a745;">₹{{ total_amount }}</span>
+    </div>
+    <div style="text-align: center; font-size: 1.1em; margin-bottom: 10px;">
+        <b>Payment Mode:</b> <span style="color: #007bff;">{{ orders.0.payment_mode }}</span>
+    </div>
+    <div style="text-align: center; margin-top: 30px; font-size: 1.2em; color: #8B4513; font-weight: bold;">
+        Thank you for shopping with us!<br>
+        <span style="font-size:0.9em; color:#333;">We hope to see you again soon.</span>
+    </div>
+</div>
+{% endif %}
+
+{% if not pdf_export %}
+<!-- WEB VERSION -->
+<style>
+    body, .container { font-family: Arial, sans-serif; }
+    .bill-header { font-size: 2em; margin-bottom: 10px; text-align: center; }
+    .brand-row { text-align: center; margin-bottom: 10px; }
+    .brand-logo {
+        height: 80px;
+        display: block;
+        margin: 0 auto;
+    }
+    .brand-name {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #8B4513;
+        margin-top: 5px;
+    }
+</style>
+<div class="container py-4">
+    <div class="brand-row">
+        <img src="{% static 'images/image.png' %}" class="brand-logo" alt="ReetVastra Logo">
+        <div class="brand-name">ReetVastra</div>
+    </div>
+    <h2 class="mb-4 bill-header">Order Bill</h2>
+    <div class="bill-meta mb-4">
+        <strong>Date of Booking:</strong> {{ orders.0.date|date:'d M Y' }}<br>
+        <strong>Order ID:</strong> #{{ orders.0.orderid }}
+    </div>
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Order Details</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Size</th>
+                            <th>Color</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>{{ order.pid.title }}</td>
+                            <td>{{ order.size }}</td>
+                            <td>{{ order.color.name }}</td>
+                            <td>{{ order.quantity }}</td>
+                            <td>₹{{ order.pid.price }}</td>
+                            <td>₹{{ order.amount }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-end mt-3">
+                <h5>Total Amount: <span class="text-success">₹{{ total_amount }}</span></h5>
+            </div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-body text-center">
+            {% if from_history %}
+                <h5 class="mb-3">Payment Mode: <span class="text-primary">{{ orders.0.payment_mode }}</span></h5>
+                <button onclick="window.print()" class="btn btn-success mt-3 no-print">Download PDF</button>
+            {% else %}
+                <h5 class="mb-3">Choose Payment Option</h5>
+                <div class="d-grid gap-2 d-md-block">
+                    <button type="button" class="btn btn-success mb-2 mb-md-0" onclick="showQRModal()">Pay Now</button>
+                    <form method="post" action="{% url 'cod_payment' %}" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="order_ids" value="{% for order in orders %}{{ order.orderid }}{% if not forloop.last %}-{% endif %}{% endfor %}">
+                        <button type="submit" class="btn btn-outline-primary">Cash on Delivery</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if orders.0.payment_mode == 'Online' and orders.0.status == 'Pending' %}
+    <div id="ratingFormSection" class="card mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-4">Rate Your Products</h5>
+            {% for order in orders %}
+            <div class="mb-4 pb-3 border-bottom">
+                <h6 class="mb-3">{{ order.pid.title }}</h6>
+                <form method="post" action="{% url 'submit_product_rating' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ order.pid.pid }}">
+                    <input type="hidden" name="order_id" value="{{ order.orderid }}">
+                    <div class="mb-3">
+                        <label for="rating-{{ order.pid.pid }}" class="form-label">Rating (1-5 Stars):</label>
+                        <select name="rating" id="rating-{{ order.pid.pid }}" class="form-select" required>
+                            <option value="">-- Select --</option>
+                            <option value="1">1 Star</option>
+                            <option value="2">2 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="5">5 Stars</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedback-{{ order.pid.pid }}" class="form-label">Feedback (Optional):</label>
+                        <textarea name="feedback" id="feedback-{{ order.pid.pid }}" class="form-control" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+{# Place style block for print media #}
+<style>
+@media print {
+    nav, .footer, .btn, .no-print, .download-btn {
+        display: none !important;
+    }
+    body {
+        background: #fff !important;
+    }
+    .container {
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .bill-header {
+        font-size: 1.5rem;
+    }
+
+    .brand-logo {
+        height: 60px;
+    }
+
+    .brand-name {
+        font-size: 1.25rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .table {
+        font-size: 0.9rem;
+    }
+
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .d-md-block .btn {
+        margin-right: 0 !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding: 0.5rem;
+    }
+
+    .bill-header {
+        font-size: 1.25rem;
+    }
+
+    .brand-logo {
+        height: 50px;
+    }
+
+    .table {
+        font-size: 0.8rem;
+    }
+
+    .table th, .table td {
+        padding: 0.4rem;
+    }
+
+    .form-select, .form-control {
+        font-size: 16px;
+    }
+}
+
+/* Improve table responsiveness */
+.table-responsive {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Improve form elements on mobile */
+@media (max-width: 768px) {
+    .form-select, .form-control {
+        font-size: 16px;
+    }
+
+    textarea.form-control {
+        min-height: 80px;
+    }
+}
+</style>
+
+{% if not from_history %}
+<!-- Pay Now Button and QR Modal -->
+<div id="qrModal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="modal-close" onclick="hideQRModal()">&times;</span>
+        <h4>Scan to Pay</h4>
+        <img src="{% static 'images/Payment_QR.jpg' %}" alt="Payment QR" class="qr-image">
+        <div class="amount-display">Amount: <b>₹{{ total_amount }}</b></div>
+        <div class="payment-note">After payment, click 'Done'. Admin will verify your payment before order is placed.</div>
+        <button class="btn btn-primary mt-3" onclick="markPaymentDone({{ orders.0.orderid }})">Done</button>
+    </div>
+</div>
+
+<style>
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 10px;
+    max-width: 350px;
+    width: 90%;
+    margin: auto;
+    text-align: center;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5em;
+    cursor: pointer;
+}
+
+.qr-image {
+    width: 200px;
+    height: 200px;
+    margin: 15px 0;
+}
+
+.amount-display {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.payment-note {
+    color: #888;
+    font-size: 0.95em;
+}
+
+@media (max-width: 576px) {
+    .modal-content {
+        padding: 1rem;
+        width: 95%;
+    }
+
+    .qr-image {
+        width: 180px;
+        height: 180px;
+    }
+
+    .amount-display {
+        font-size: 1.1em;
+    }
+
+    .payment-note {
+        font-size: 0.9em;
+    }
+}
+</style>
+
+<script>
+function showQRModal() {
+    document.getElementById('qrModal').style.display = 'flex';
+}
+
+function hideQRModal() {
+    document.getElementById('qrModal').style.display = 'none';
+}
+
+function markPaymentDone(orderid) {
+    fetch('/mark-payment-done/' + orderid + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            alert('Payment marked as done! Admin will verify and place your order soon.');
+            hideQRModal();
+            document.getElementById('ratingFormSection').style.display = 'block';
+            document.querySelector('.card .card-body.text-center').style.display = 'none';
+        } else {
+            alert('Something went wrong. Please try again.');
+        }
+    });
+}
+</script>
+{% endif %}
+
+{% endblock %} 

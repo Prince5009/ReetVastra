@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product - ReetVastra</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5dc; }
+        .product-container {
+            background: #fff;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(139,69,19,0.08);
+        }
+        .form-label { color: #8B4513; }
+        .btn-primary { background: #8B4513; border: none; }
+        .btn-primary:hover { background: #6B3410; }
+        .image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            margin: 10px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        #imagePreviewContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+        }
+        .remove-image {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            line-height: 25px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .image-counter {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="product-container">
+    <h2 class="mb-4">Add New Product</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data" id="productForm">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Main Image</label>
+            <input type="file" name="image" class="form-control" accept="image/*" required>
+            <div id="mainImagePreview" class="mt-2"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Additional Images (Up to 10)</label>
+            <input type="file" name="additional_images" class="form-control" accept="image/*" multiple id="additionalImages">
+            <div class="image-counter">Selected: <span id="imageCount">0</span>/10 images</div>
+            <div id="imagePreviewContainer"></div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select name="catid" class="form-control" required>
+                <option value="">Select Category</option>
+                {% for category in categories %}
+                    <option value="{{ category.catid }}">{{ category.title }} ({{ category.secid.title }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" name="price" class="form-control" step="0.01" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Available Sizes</label>
+            <div class="d-flex flex-wrap gap-2">
+                {% for size in sizes %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="available_sizes" value="{{ size.id }}" id="size_{{ size.id }}">
+                    <label class="form-check-label" for="size_{{ size.id }}">{{ size.name }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Available Colors</label>
+            <select name="available_colors" class="form-select" multiple required>
+                {% for color in colors %}
+                    <option value="{{ color.id }}">{{ color.name }} ({{ color.code }})</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple colors.</small>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Quantity</label>
+            <input type="number" name="quantity" class="form-control" min="0" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Product</button>
+        <a href="{% url 'admin_product_list' %}" class="btn btn-secondary">Back</a>
+    </form>
+</div>
+
+<script>
+// Preview main image
+document.querySelector('input[name="image"]').addEventListener('change', function(e) {
+    const preview = document.getElementById('mainImagePreview');
+    preview.innerHTML = '';
+    
+    if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'image-preview';
+            preview.appendChild(img);
+        }
+        reader.readAsDataURL(this.files[0]);
+    }
+});
+
+// Handle additional images
+const additionalImagesInput = document.getElementById('additionalImages');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+const imageCountSpan = document.getElementById('imageCount');
+let selectedImages = [];
+
+additionalImagesInput.addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    
+    // Check if adding new files would exceed the limit
+    if (selectedImages.length + files.length > 10) {
+        alert('You can only upload up to 10 additional images');
+        this.value = ''; // Clear the input
+        return;
+    }
+    
+    // Add new files to selectedImages array
+    selectedImages = [...selectedImages, ...files];
+    updateImagePreviews();
+});
+
+function updateImagePreviews() {
+    imagePreviewContainer.innerHTML = '';
+    imageCountSpan.textContent = selectedImages.length;
+    
+    selectedImages.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const container = document.createElement('div');
+            container.className = 'image-preview-container';
+            
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'image-preview';
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-image';
+            removeBtn.innerHTML = '×';
+            removeBtn.onclick = function() {
+                selectedImages.splice(index, 1);
+                updateImagePreviews();
+            };
+            
+            container.appendChild(img);
+            container.appendChild(removeBtn);
+            imagePreviewContainer.appendChild(container);
+        }
+        reader.readAsDataURL(file);
+    });
+}
+
+// Form submission
+document.getElementById('productForm').addEventListener('submit', function(e) {
+    if (selectedImages.length > 10) {
+        e.preventDefault();
+        alert('You can only upload up to 10 additional images');
+        return;
+    }
+});
+</script>
+</body>
+</html> 
